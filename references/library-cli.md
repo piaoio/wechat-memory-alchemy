@@ -1,9 +1,31 @@
 # 资料库命令速查（均已在真实环境验证）
 
-先加载 `library` 技能，再按下表操作。命令里的 `$SKILL` 指向 library 技能目录：
+先加载 `library` 技能，再按下表操作。命令里的 `$SKILL` 指向 **WorkBuddy 内置的 `library` 技能目录**（不是你自己的 skill 目录）。
+
+## `$SKILL` 怎么定位
+
+**没有现成的环境变量可用**——`CODEBUDDY_SKILL_DIR` 这类变量在运行时并不存在，别照抄网上的写法。而且**也不能从 `%LOCALAPPDATA%` 推**：实测有机器把 WorkBuddy 装在 D 盘而 `%LOCALAPPDATA%` 指向 C 盘，照推会得到错误路径。
+
+**① 最省事：让 WorkBuddy 自己找。** 在对话里直接说"用 library 技能的资料库脚本建文档"，它会定位到安装目录的绝对路径。人不需要记路径，也不需要猜盘符。
+
+**② 必须手工执行时，从安装目录往下走：**
+
+先拿到 WorkBuddy 安装目录（含 `WorkBuddy.exe` 那一层）：
+
+- **Windows**：桌面或开始菜单图标 → 右键 → **打开文件所在位置**
+- **macOS**：`/Applications/WorkBuddy.app` → 右键 → **显示包内容** → `Contents`
+
+然后拼上固定后缀：
+
+```
+<安装目录>/resources/app.asar.unpacked/resources/plugins/workbuddy-builtin/skills/library
+```
+
+macOS 是 `<Contents>/Resources/app.asar.unpacked/...`（大小写不同）。判据：这个目录里应该有 `space_api.py`、`doc/`、`database/`、`manage/` 四个东西，缺一个就是路径错了。
 
 ```bash
-SKILL="${CODEBUDDY_SKILL_DIR}"          # 若未注入，用 library 技能的实际路径
+SKILL="<上一步得到的绝对路径>"
+ls "$SKILL/space_api.py" "$SKILL/doc" "$SKILL/database"   # 三个都在才算对
 ```
 
 > 所有脚本的身份由运行时注入，**不要手工传 token**。

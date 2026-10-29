@@ -56,16 +56,40 @@
 
 ---
 
+## 适用前提（先看这条，能省你半小时）
+
+**它只在 WorkBuddy 里能用。** 原因有三，都是硬的：
+
+1. 采集入口依赖 WorkBuddy 的「微信聊天记录分享」功能——微信客户端选中消息 → 合并转发 → 分享到 WorkBuddy，落成一个 `.zip`。别的 AI 工具没有这个入口。
+2. 归档那步调用 WorkBuddy 内置 `library` 技能的资料库脚本（建文档、建数据表）。没有 `library` 就跑不到底。
+3. 示例里的路径、命令都按 WorkBuddy 的技能目录约定写。
+
+如果你用的是 ChatGPT / Claude / Cursor，这个仓库对你**只有方法论价值**——`references/modes.md` 的 12 个模式、`boundaries.md` 的边界规则和 `schema.md` 的 28 字段设计，跟平台无关，可以直接搬去当提示词用。三个脚本也是纯标准库，单独拿 `build_records.py` 解析导出的聊天文本照样能跑。
+
+---
+
 ## 安装
 
-把整个目录放到 WorkBuddy 的用户技能目录：
-
 ```bash
-git clone https://github.com/<you>/wechat-memory-alchemy.git \
+git clone https://github.com/piaoio/wechat-memory-alchemy.git \
   ~/.workbuddy/skills/wechat-memory-alchemy
 ```
 
-重启 WorkBuddy，说"存到知识库"或"把朋友圈做成日记"即可触发。
+（Windows 的用户目录是 `C:\Users\<你的用户名>\.workbuddy\skills\`，上面前提里的中文用户名坑同样适用——见文末「已知问题」。）
+
+不会用 git 的话：打开仓库页面 → 绿色 **Code** 按钮 → **Download ZIP**，解压后把里面的文件夹改名成 `wechat-memory-alchemy` 放进去，效果一样。
+
+装完重启 WorkBuddy，说"存到知识库"或"把朋友圈做成日记"即可触发。想确认装没装好，问它一句"我装了哪些 skill"。
+
+---
+
+## 已知问题
+
+**Windows 中文用户名会导致 SSH 与脚本路径异常。** Git 自带的 `ssh` 解析 `~` 时会把中文按 GBK 编码处理（`李贤` → `\300\356\317\315`），报 `Could not create directory '/c/Users/.../.ssh'`。解法是全部用绝对路径，known_hosts 放到纯 ASCII 路径，并固化到仓库：
+
+```bash
+git config core.sshCommand "ssh -i '<密钥绝对路径>' -o IdentitiesOnly=yes -o UserKnownHostsFile='<ASCII路径>/known_hosts'"
+```
 
 ---
 
